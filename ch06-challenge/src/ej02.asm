@@ -39,15 +39,41 @@ SECTION "Ejercicio 02", ROM0
 ;; ⫷▬ A = the camera in that axis
 ;; ❌ Modifies A, B
 ej02::   ;; = `camera_axis`, que está en src/sys/sys_camera.asm
-   ;; ◉◉YOUR CODE◉◉
+   sub b ;; a - 48
+   jr nc, .continue
+   xor a
+   ret
+
+   .continue:
+      ;;ld l,0
+      ;;ld h,1
+      ;;ld d,0
+      ;;ld e,c
+      ;; Fix N1: no existe la operacion sub hl, de, así que hago lo mismo pero con registros de 1 byte paso a paso
+      ld h,a ;; h - 48
+      ld a,255
+      sub c
+      inc a ;;256 -C
+      ld b, a
+      ld a,h 
+      ;;sub hl, de
+      ;;ld b,l
+      sub b ;; (A-B) menor 256 - C
+      ;; Fix E1: era c y no nc
+      jr c, .limit
+      ld a,b
+      ret
+      .limit:
+         ld a, h
+         ret
    ret ;; ◀━REMOVE RET IF NEEDED
 
 ;; ==========================================================
-;;  ENSAMBLA: ____  (SÍ / NO)
+;;  ENSAMBLA: SI  (SÍ / NO)
 ;; === CASOS DE PRUEBA   (test_ej02 en main.asm)
 ;;  * Comprobar que CPU y MEM coinciden con el valor esperado
 ;; ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-;; * CASO 1: ____  (OK / Falla)
+;; * CASO 1: OK  (OK / Falla)
 ;;
 ;;        >>>>> RESULTADO ESPERADO (Comprobar) <<<<<
 ;; [PREVIO]> camera_axis con A = 120, B = 72, C = 160 (el ancho de la pantalla).
@@ -56,7 +82,7 @@ ej02::   ;; = `camera_axis`, que está en src/sys/sys_camera.asm
 ;;   C800  30 .. .. .. .. .. .. ..|.. .. .. .. .. .. .. ..|
 ;;  120 − 72 = 48 (30 en hexadecimal). El máximo es 256 − 160 = 96 y 48 es menor: es la cámara.
 ;; ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-;; * CASO 2: ____  (OK / Falla)
+;; * CASO 2: OK  (OK / Falla)
 ;;
 ;;        >>>>> RESULTADO ESPERADO (Comprobar) <<<<<
 ;; [PREVIO]> camera_axis con A = 30, con A = 250 (B = 72, C = 160) y con A = 250 (B = 64, C = 144, el alto de la pantalla).
@@ -66,3 +92,13 @@ ej02::   ;; = `camera_axis`, que está en src/sys/sys_camera.asm
 ;;  30 − 72 baja de 0 (acarreo): 0. 250 − 72 = 178 pasa del máximo 256 − 160 = 96 (60 en hexadecimal): 96. 250 − 64 = 186 pasa del máximo 256 − 144 = 112 (70): 112.
 ;; ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ;; ==========================================================
+;; === FIXES
+;;  Tipo: Cant.
+;;  *  N:    1     (no existe)
+;;  *  E:    1     (errónea)
+;;  *  S:    0     (sintaxis)
+;;  *  F:    0     (falta algo)
+;;
+;; EXPLICACIONES ADICIONALES DE FIXES (si es necesario)
+;;  *
+;;
