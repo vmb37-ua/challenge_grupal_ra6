@@ -39,15 +39,20 @@ SECTION "Ejercicio 08", ROM0
 ;; 📥 DE = entity, A = a random number
 ;; ❌ Modifies A, BC, HL
 ej08::   ;; = `sys_ai_choose`, que está en src/sys/sys_ai.asm
-   ;; ◉◉YOUR CODE◉◉
-   ret ;; ◀━REMOVE RET IF NEEDED
-
+   ld c,a ;Fix F1: faltaba añadir un temp para a
+   and AI_STILL_MASK ; FIX E1: era and y no un cp, y al cambiarlo abajo es z y no nz
+   jp z,sys_physics_stop
+   ld a,c 
+   swap a ;FIX F2: cambiar de sitio
+   and DIR_MASK
+   ld b,a
+   jp sys_physics_walk
 ;; ==========================================================
-;;  ENSAMBLA: ____  (SÍ / NO)
+;;  ENSAMBLA: __SI__  (SÍ / NO)
 ;; === CASOS DE PRUEBA   (test_ej08 en main.asm)
 ;;  * Comprobar que CPU y MEM coinciden con el valor esperado
 ;; ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-;; * CASO 1: ____  (OK / Falla)
+;; * CASO 1: __OK__  (OK / Falla)
 ;;
 ;;        >>>>> RESULTADO ESPERADO (Comprobar) <<<<<
 ;; [PREVIO]> A = %00110101 (bits 7-6 = 00). Entidad 0 con VY = 1, VX = 0 y mirando hacia abajo. DE = entidad 0.
@@ -58,7 +63,7 @@ ej08::   ;; = `sys_ai_choose`, que está en src/sys/sys_ai.asm
 ;;   C000  C3 00 00 00 00 00 00 00|00 00 00 00 00 00 00 00|
 ;;  Los bits 7-6 valen 00: la entidad se queda quieta. VY pasa de 1 a 0; VX y DIR no cambian.
 ;; ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-;; * CASO 2: ____  (OK / Falla)
+;; * CASO 2: __OK__  (OK / Falla)
 ;;
 ;;        >>>>> RESULTADO ESPERADO (Comprobar) <<<<<
 ;; [PREVIO]> A = %01100000 (bits 7-6 = 01, bits 5-4 = 10). Entidad 0 quieta, mirando hacia abajo. DE = entidad 0.
@@ -70,3 +75,11 @@ ej08::   ;; = `sys_ai_choose`, que está en src/sys/sys_ai.asm
 ;;  Los bits 7-6 valen 01 (no es 00): camina. Los bits 5-4 valen %10 = DIR_LEFT (2): DIR = 02 y VX = −1 (FF).
 ;; ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ;; ==========================================================
+;; === FIXES
+;;  Tipo: Cant.
+;;  *  N:    __     (no existe)
+;;  *  E:    _1_     (errónea)
+;;  *  S:    __     (sintaxis)
+;;  *  F:    _2_     (falta algo)
+;;
+;; EXPLICACIONES ADICIONALES DE FIXES (si es necesario)
