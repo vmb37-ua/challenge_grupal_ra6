@@ -42,15 +42,50 @@ SECTION "Ejercicio 11", ROM0
 ;; 📥 DE = entity
 ;; ❌ Modifies A, BC, HL
 ej11::   ;; = `sys_animation_one`, que está en src/sys/sys_animation.asm
-   ;; ◉◉YOUR CODE◉◉
+   ld h, d
+   ld l, e
+   ld a, [hl]                                ;; Fix N1: Sin completar la instrucción
+   and CMP_ANIMATION
+   jr z, .salir
+
+   ld a, [hl]                                ;; Fix E1: Instrucción errónea
+   and CMP_PHYSICS
+   jr nz, .fisica
+
+   ld a, l
+   add a, 10                                 ;; Fix E2
+   ld l, a
+   inc [hl]
+   jr .salir
+
+   .fisica:
+   ld a, e
+   add a, 5
+   ld l, a
+   ld a, 0                                  ;; Fix E4
+   cp [hl]
+   jr nz, .mov
+   inc hl
+   cp [hl]
+   jr nz, .mov
+   jr .salir
+
+   .mov:
+   ld l, e
+   ld a, l
+   add a, 10                                 ;; Fix E2
+   ld l, a
+   inc [hl]
+   .salir:
+   call sys_animation_image
    ret ;; ◀━REMOVE RET IF NEEDED
 
 ;; ==========================================================
-;;  ENSAMBLA: ____  (SÍ / NO)
+;;  ENSAMBLA: SI (SÍ / NO)
 ;; === CASOS DE PRUEBA   (test_ej11 en main.asm)
 ;;  * Comprobar que CPU y MEM coinciden con el valor esperado
 ;; ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-;; * CASO 1: ____  (OK / Falla)
+;; * CASO 1: OK  (OK / Falla)
 ;;
 ;;        >>>>> RESULTADO ESPERADO (Comprobar) <<<<<
 ;; [PREVIO]> Entidad 0 con PHYSICS: VX = −1 (FF), DIR_LEFT, TICK = 7, SHEET = 80, ATTR = 0. Entidad 1, el portal, SIN PHYSICS: DIR_DOWN, TICK = 7, SHEET = 136. Se llama con cada una (DE = su entidad). La imagen la elige la rutina del proyecto.
@@ -62,7 +97,7 @@ ej11::   ;; = `sys_animation_one`, que está en src/sys/sys_animation.asm
 ;;   C010  A1 00 00 88 00 00 00 00|00 88 08 00 00 00 00 00|
 ;;  Entidad 0, camina: TICK pasa de 7 a 8. Después, `sys_animation_image` elige la imagen: el bit 2 de 8 vale 0, así que el paso es 0. TILE = 80 + 16 = 96 (60 en hexadecimal) y ATTR = 20 (DIR_LEFT). Entidad 1, el portal: no tiene PHYSICS, así que se anima siempre: TICK = 8 y TILE = 136 + 0 = 136 (88).
 ;; ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-;; * CASO 2: ____  (OK / Falla)
+;; * CASO 2: OK  (OK / Falla)
 ;;
 ;;        >>>>> RESULTADO ESPERADO (Comprobar) <<<<<
 ;; [PREVIO]> Entidad 0 con PHYSICS: VY = VX = 0, DIR_UP, TICK = 13, SHEET = 80, ATTR = $30. DE = entidad 0.
@@ -74,3 +109,14 @@ ej11::   ;; = `sys_animation_one`, que está en src/sys/sys_animation.asm
 ;;  Está quieta: TICK sigue en 13 (0D). `sys_animation_image` elige la imagen: el bit 2 de 13 vale 1, así que el paso es 4. TILE = 80 + 8 + 4 = 92 (5C). ATTR pasa de 30 a 10 (mira hacia arriba).
 ;; ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ;; ==========================================================
+;; ==========================================================
+;; === FIXES
+;;  Tipo: Cant.
+;;  *  N:    1     (no existe)
+;;  *  E:    3     (errónea)
+;;  *  S:    __     (sintaxis)
+;;  *  F:    __     (falta algo)
+;;
+;; EXPLICACIONES ADICIONALES DE FIXES (si es necesario)
+;;  Varios fixes no están contabilizados porque vienen de un mismo error propagado o son esencialmente iguales.
+;;
