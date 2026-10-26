@@ -43,6 +43,19 @@ SECTION "Ejercicio 04", ROM0
 ej04::   ;; = `map_tile_address`, que está en src/man/man_map.asm
    ;; ◉◉YOUR CODE◉◉
 
+   ld a, d
+   ld l, a
+   ld h, 0
+   add hl, hl
+   add hl, hl
+   add hl, hl
+   add hl, hl
+   add hl, hl ;;Fix: F1: Falta otro add hl, hl
+
+   ld a, e
+   add l
+   ld l, a
+
    ld   a, [map_current]        ;; \ HL += map_current: the address in the map
    add  l                       ;; |
    ld   l, a                    ;; |
@@ -53,11 +66,11 @@ ej04::   ;; = `map_tile_address`, que está en src/man/man_map.asm
    ret
 
 ;; ==========================================================
-;;  ENSAMBLA: ____  (SÍ / NO)
+;;  ENSAMBLA: SÍ  (SÍ / NO)
 ;; === CASOS DE PRUEBA   (test_ej04 en main.asm)
 ;;  * Comprobar que CPU y MEM coinciden con el valor esperado
 ;; ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-;; * CASO 1: ____  (OK / Falla)
+;; * CASO 1: OK  (OK / Falla)
 ;;
 ;;        >>>>> RESULTADO ESPERADO (Comprobar) <<<<<
 ;; [PREVIO]> Nivel 1: map_current = Level1Map (0188). D = 27 (fila), E = 4 (columna).
@@ -66,7 +79,7 @@ ej04::   ;; = `map_tile_address`, que está en src/man/man_map.asm
 ;;    de = 1B04
 ;;  27 × 32 + 4 = 868 (364 en hexadecimal). HL = Level1Map + 364 = 04EC. DE no cambia.
 ;; ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-;; * CASO 2: ____  (OK / Falla)
+;; * CASO 2: OK  (OK / Falla)
 ;;
 ;;        >>>>> RESULTADO ESPERADO (Comprobar) <<<<<
 ;; [PREVIO]> Nivel 1: map_current = Level1Map (0188). D = 31 (fila), E = 31 (columna).
@@ -76,3 +89,13 @@ ej04::   ;; = `map_tile_address`, que está en src/man/man_map.asm
 ;;  31 × 32 + 31 = 1023 (3FF en hexadecimal). HL = Level1Map + 3FF = 0587: el último byte del mapa. DE no cambia.
 ;; ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ;; ==========================================================
+;; === FIXES
+;;  Tipo: Cant. => Tramos
+;;  *  N:    0 => 0     (1 fix = -1 tramo)
+;;  *  E:    0 => 0     (1 fix = -1 tramo)
+;;  *  S:    0 => 0     (2 fix = -1 tramo. En grupos de 2 solo)
+;;  *  F:    1 => 0     (2 fix = -1 tramo. En grupos de 2 solo)
+;;      TOTAL:     0 tramos
+;;
+;; EXPLICACIONES ADICIONALES DE FIXES (si es necesario)
+;;  *
