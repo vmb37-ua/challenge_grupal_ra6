@@ -56,16 +56,33 @@ ej06::   ;; = `game_enemies_spawn`, que está en src/scn/scn_game_rules.asm
    ld   e, l                    ;; /
    or   a                       ;; \ No enemies? Nothing else to do
    ret  z                       ;; /
-
-   ;; ◉◉YOUR CODE◉◉
+   ;;Fix N1: push a y pop a no existen, así que uso push af y pop af
+   push af
+   .loop
+      pop af
+      or a
+      ret z
+      push af
+      ld a,[de]
+      ld b, a
+      inc de
+      ld a, [de]
+      ld c, a
+      inc de
+      ld hl, EnemyTemplate
+      call game_spawn_at
+      pop af
+      dec a
+      push af
+      jr .loop
    ret ;; ◀━REMOVE RET IF NEEDED
 
 ;; ==========================================================
-;;  ENSAMBLA: ____  (SÍ / NO)
+;;  ENSAMBLA: SI (SÍ / NO)
 ;; === CASOS DE PRUEBA   (test_ej06 en main.asm)
 ;;  * Comprobar que CPU y MEM coinciden con el valor esperado
 ;; ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-;; * CASO 1: ____  (OK / Falla)
+;; * CASO 1: OK (OK / Falla)
 ;;
 ;;        >>>>> RESULTADO ESPERADO (Comprobar) <<<<<
 ;; [PREVIO]> Los datos (en tst_data) son 3, (3, 2), (4, 20), (30, 9): tres enemigos como pares fila, columna. No hay entidades. HL = tst_data.
@@ -92,3 +109,13 @@ ej06::   ;; = `game_enemies_spawn`, que está en src/scn/scn_game_rules.asm
 ;;  enemies_left = 0 y no se crea ninguna entidad.
 ;; ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ;; ==========================================================
+;; === FIXES
+;;  Tipo: Cant.
+;;  *  N:    1     (no existe)
+;;  *  E:    0     (errónea)
+;;  *  S:    0     (sintaxis)
+;;  *  F:    0     (falta algo)
+;;
+;; EXPLICACIONES ADICIONALES DE FIXES (si es necesario)
+;;  *
+;;
