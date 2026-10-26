@@ -37,14 +37,20 @@ SECTION "Ejercicio 03", ROM0
 ;; ❌ Modifies A, BC
 ej03::   ;; = `sys_render_scroll`, que está en src/sys/sys_render.asm
    ;; ◉◉YOUR CODE◉◉
+   call sys_camera_get
+   ld a, b
+   ldh [rSCX], a ;;Fix: E1: No se usa ld, se usa ldh con rSCX
+   ld a, c
+   ldh [rSCY], a ;;Fix: E2: es rSCY, no rSCX
+
    ret ;; ◀━REMOVE RET IF NEEDED
 
 ;; ==========================================================
-;;  ENSAMBLA: ____  (SÍ / NO)
+;;  ENSAMBLA: SÍ  (SÍ / NO)
 ;; === CASOS DE PRUEBA   (test_ej03 en main.asm)
 ;;  * Comprobar que CPU y MEM coinciden con el valor esperado
 ;; ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-;; * CASO 1: ____  (OK / Falla)
+;; * CASO 1: OK  (OK / Falla)
 ;;
 ;;        >>>>> RESULTADO ESPERADO (Comprobar) <<<<<
 ;; [PREVIO]> cam_x = 48 y cam_y = 30. rSCY y rSCX valían FF.
@@ -53,7 +59,7 @@ ej03::   ;; = `sys_render_scroll`, que está en src/sys/sys_render.asm
 ;;   FF40  .. .. 1E 30 .. .. .. ..|.. .. .. .. .. .. .. ..|
 ;;  rSCX = cam_x = 48 (30 en hexadecimal) y rSCY = cam_y = 30 (1E).
 ;; ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-;; * CASO 2: ____  (OK / Falla)
+;; * CASO 2: OK  (OK / Falla)
 ;;
 ;;        >>>>> RESULTADO ESPERADO (Comprobar) <<<<<
 ;; [PREVIO]> cam_x = 96 y cam_y = 112 (la esquina de abajo a la derecha). rSCY y rSCX valían FF.
@@ -63,3 +69,13 @@ ej03::   ;; = `sys_render_scroll`, que está en src/sys/sys_render.asm
 ;;  rSCX = 96 (60 en hexadecimal) y rSCY = 112 (70).
 ;; ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ;; ==========================================================
+;; === FIXES
+;;  Tipo: Cant. => Tramos
+;;  *  N:    0 => 1     (1 fix = -1 tramo)
+;;  *  E:    2 => -2     (1 fix = -1 tramo)
+;;  *  S:    0 => 0     (2 fix = -1 tramo. En grupos de 2 solo)
+;;  *  F:    0 => 0     (2 fix = -1 tramo. En grupos de 2 solo)
+;;      TOTAL:     -2 tramos
+;;
+;; EXPLICACIONES ADICIONALES DE FIXES (si es necesario)
+;;  *

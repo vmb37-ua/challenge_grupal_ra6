@@ -59,14 +59,37 @@ ej05b::   ;; = `hud_draw_hearts`, que está en src/engine/ui/hud.asm
    ld   hl, HUD_HEARTS_CELL     ;; HL = the first cell of the hearts
 
    ;; ◉◉YOUR CODE◉◉
+   ld a, b
+   .sum:
+   inc hl
+   dec a
+   jr nz, .sum
+   dec hl                       ;; FIX E1: el bucle se queda uno más, así que decrecentamos hl
+   .heart:
+   ld a, c
+   or a
+   jr z, .vacio
+   ld a, TILE_HEART_FULL
+   dec c
+   jr .put
+   .vacio:
+   ld a, TILE_HEART_EMPTY
+   .put:
+   ld [hl-], a                  ;; FIX E2: dec no hace flag, hay que contar con b
+   dec b                       
+   jr nz, .heart               
+
+
+
+
    ret ;; ◀━REMOVE RET IF NEEDED
 
 ;; ==========================================================
-;;  ENSAMBLA: ____  (SÍ / NO)
+;;  ENSAMBLA: SÍ  (SÍ / NO)
 ;; === CASOS DE PRUEBA   (test_ej05 en main.asm)
 ;;  * Comprobar que CPU y MEM coinciden con el valor esperado
 ;; ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-;; * CASO 1: ____  (OK / Falla)
+;; * CASO 1: OK  (OK / Falla)
 ;;
 ;;        >>>>> RESULTADO ESPERADO (Comprobar) <<<<<
 ;; [PREVIO]> rWY y rWX valían 0 y las 3 celdas de los corazones (HUD_HEARTS_CELL), EE. hud_show y después hud_draw_hearts con C = 2.
@@ -78,7 +101,7 @@ ej05b::   ;; = `hud_draw_hearts`, que está en src/engine/ui/hud.asm
 ;;   9C00  .. 46 45 45 .. .. .. ..|.. .. .. .. .. .. .. ..|
 ;;  hud_show: rWY = HUD_WINDOW_Y = 136 (88 en hexadecimal) y rWX = HUD_WINDOW_X = 7. Con C = 2, los dos corazones llenos están a la derecha: vacío (TILE_HEART_EMPTY = 46), lleno (45), lleno (45).
 ;; ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-;; * CASO 2: ____  (OK / Falla)
+;; * CASO 2: OK  (OK / Falla)
 ;;
 ;;        >>>>> RESULTADO ESPERADO (Comprobar) <<<<<
 ;; [PREVIO]> Igual, pero hud_draw_hearts con C = 0.
@@ -91,3 +114,14 @@ ej05b::   ;; = `hud_draw_hearts`, que está en src/engine/ui/hud.asm
 ;;  Con C = 0 no hay ningún corazón lleno: las 3 celdas vacías, 46, 46, 46.
 ;; ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ;; ==========================================================
+;; ==========================================================
+;; === FIXES
+;;  Tipo: Cant. => Tramos
+;;  *  N:    0 => 0     (1 fix = -1 tramo)
+;;  *  E:    2 => -2     (1 fix = -1 tramo)
+;;  *  S:    0 => 0     (2 fix = -1 tramo. En grupos de 2 solo)
+;;  *  F:    0 => 0     (2 fix = -1 tramo. En grupos de 2 solo)
+;;      TOTAL:     -2 tramos
+;;
+;; EXPLICACIONES ADICIONALES DE FIXES (si es necesario)
+;;  *

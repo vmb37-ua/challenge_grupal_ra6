@@ -37,15 +37,30 @@ SECTION "Ejercicio 07", ROM0
 ;; Opens the portal of the level, where its data say: its X and its Y are in PIXELS.
 ;; ❌ Modifies A, BC, DE, HL
 ej07::   ;; = `portal_spawn`, que está en src/scn/scn_game_rules.asm
-   ;; ◉◉YOUR CODE◉◉
-   ret ;; ◀━REMOVE RET IF NEEDED
+   ld hl,PortalTemplate
+   call man_entity_create
+   ret nz
+   ld b,h
+   ld c,l ;FIX N1: Ponia ld bc,hl en vez de separado
+   call level_get
+   ld de,LVL_EXIT_X
+   add hl,de ;FIX F1: sustituida por la suma directa 
+   ld a,[hl+];FIX F2: avanzar en la rom
+   ld d,[hl] ;FIX F3: faltaba leer la Y
+   ld h,b    ;FIX F4: por el error anterior falta guardarlo de nuevo en hl los valores
+   ld l,c    ;FIX F5: lo mismo del error anterior """"
+   inc hl
+   ld [hl],d ;FIX E1: era en d, pusimos a en los 2 por no revisar
+   inc hl
+   ld [hl],a 
+   ret
 
 ;; ==========================================================
-;;  ENSAMBLA: ____  (SÍ / NO)
+;;  ENSAMBLA: __SI__  (SÍ / NO)
 ;; === CASOS DE PRUEBA   (test_ej07 en main.asm)
 ;;  * Comprobar que CPU y MEM coinciden con el valor esperado
 ;; ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-;; * CASO 1: ____  (OK / Falla)
+;; * CASO 1: __OK__  (OK / Falla)
 ;;
 ;;        >>>>> RESULTADO ESPERADO (Comprobar) <<<<<
 ;; [PREVIO]> Nivel 3 (level_current = 2): su portal está en X = 216, Y = 144. No hay entidades.
@@ -54,7 +69,7 @@ ej07::   ;; = `portal_spawn`, que está en src/scn/scn_game_rules.asm
 ;;   C000  A5 90 D8 88 00 00 00 08|00 88 00 00 00 00 00 00|
 ;;  El portal se crea en la entidad 0 con los valores de PortalTemplate, Y = 144 (90) y X = 216 (D8).
 ;; ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-;; * CASO 2: ____  (OK / Falla)
+;; * CASO 2: __OK__  (OK / Falla)
 ;;
 ;;        >>>>> RESULTADO ESPERADO (Comprobar) <<<<<
 ;; [PREVIO]> Nivel 3. Las 12 entidades están vivas (solo CMP = 80).
@@ -65,3 +80,11 @@ ej07::   ;; = `portal_spawn`, que está en src/scn/scn_game_rules.asm
 ;;  No hay hueco: no se crea nada y no se escribe nada. Las entidades siguen con CMP = 80.
 ;; ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ;; ==========================================================
+;; === FIXES
+;;  Tipo: Cant.
+;;  *  N:    _1_     (no existe)
+;;  *  E:    _1_     (errónea)
+;;  *  S:    __     (sintaxis)
+;;  *  F:    _5_     (falta algo)
+;;
+;; EXPLICACIONES ADICIONALES DE FIXES (si es necesario)

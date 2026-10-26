@@ -46,27 +46,29 @@ SECTION "Ejercicio 01", ROM0
 DMARoutine:
    ld   a, HIGH(shadow_oam)     ;; \ rDMA = the page of the shadow OAM:
    ldh  [rDMA], a               ;; / the copy starts now
-   ld   a, DMA_WAIT_LOOP        ;; \ Wait for the copy to end,
+   ld   a, DMA_WAIT_LOOPS        ;; \ Wait for the copy to end,                  Fix no encontrado: S1 Faltaba la S del plural en la constante
 .wait                           ;; | doing nothing (only HRAM can be read):
+   nop                          ;;                                               Fix: F2 Falta un nop para hacer la suma total de 5 ciclos por bucle
    dec  a                       ;; | 32 loops x 5 cycles:
-   jr   z, .wait                ;; /
+   jr   nz, .wait                ;; /                                            Fix: E1 La operacion logica correcta es nz
+   ret                           ;;                                              Fix: F1 Falta el ret que también se debería copiar a HRAM           
 DMARoutineEnd:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Copies the DMA routine to HRAM. It is done once, when the console starts.
 ;; ❌ Modifies A, B, DE, HL
 ej01::   ;; = `dma_init`, que está en src/engine/dma.asm
-   ld   hl, hDMARoutine         ;; \ HL = the routine in the ROM
-   ld   de, DMARoutine          ;; | DE = its place in HRAM
+   ld   hl, DMARoutine         ;; \ HL = the routine in the ROM                  Fix: E2 El origen y destino de la copia de DMA estaban intercambiados
+   ld   de, hDMARoutine          ;; | DE = its place in HRAM                     Fix: E3 Igual caso que E2
    ld   b, DMARoutineEnd - DMARoutine ;; | B = its size
    jp   memcpy8                 ;; / Copy it
 
 ;; ==========================================================
-;;  ENSAMBLA: ____  (SÍ / NO)
+;;  ENSAMBLA: OK  (SÍ / NO)
 ;; === CASOS DE PRUEBA   (test_ej01 en main.asm)
 ;;  * Comprobar que CPU y MEM coinciden con el valor esperado
 ;; ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-;; * CASO 1: ____  (OK / Falla)
+;; * CASO 1: OK  (OK / Falla)
 ;;
 ;;        >>>>> RESULTADO ESPERADO (Comprobar) <<<<<
 ;; [PREVIO]> La HRAM (hDMARoutine, 16 bytes) está llena de EE.
@@ -75,7 +77,7 @@ ej01::   ;; = `dma_init`, que está en src/engine/dma.asm
 ;;   FF80  3E C1 E0 46 3E 20 3D 00|20 FC C9 EE EE EE EE EE|
 ;;  dma_init copia los 11 bytes de DMARoutine (3E C1 E0 46 3E 20 3D 00 20 FC C9) a HRAM: la espera tiene un `nop` (00) y cuenta 32 (20). Los otros 5 bytes siguen en EE.
 ;; ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-;; * CASO 2: ____  (OK / Falla)
+;; * CASO 2: OK  (OK / Falla)
 ;;
 ;;        >>>>> RESULTADO ESPERADO (Comprobar) <<<<<
 ;; [PREVIO]> shadow_oam = 00, 01, 02 ... 9F (160 bytes). La OAM (FE00-FE9F), llena de FF. Se llama a dma_init y después a hDMARoutine.
@@ -92,7 +94,7 @@ ej01::   ;; = `dma_init`, que está en src/engine/dma.asm
 ;;  Tipo: Cant.
 ;;  *  N:    __     (no existe)
 ;;  *  E:    __     (errónea)
-;;  *  S:    __     (sintaxis)
+;;  *  S:    1     (sintaxis)
 ;;  *  F:    __     (falta algo)
 ;;
 ;; EXPLICACIONES ADICIONALES DE FIXES (si es necesario)
